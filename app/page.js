@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useGameStore } from './store/gameStore';
 import GameGrid from './components/GameGrid';
 import GameOver from './components/GameOver';
+import UsernameModal from './components/UsernameModal';
 
 const structures = [
   { id: 'habitat', name: 'Habitat Dome', icon: '🏠', cost: { energy: 20, water: 10, oxygen: 15 } },
@@ -15,6 +16,7 @@ const structures = [
 ];
 
 export default function Home() {
+  const initialized = useRef(false);
   const { 
     initializeGrid, 
     isRunning, 
@@ -26,30 +28,50 @@ export default function Home() {
     speed,
     setSpeed,
     isGameOver,
+    habitatCount,
   } = useGameStore();
 
+  const [username, setUsername] = useState(null);
+
   useEffect(() => {
-    initializeGrid();
+    if (!initialized.current) {
+      initializeGrid();
+      initialized.current = true;
+    }
   }, [initializeGrid]);
+
+  if (!username) {
+    return <UsernameModal onStart={(name) => setUsername(name)} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-900/20 to-black p-8">
-      <main className="max-w-7xl mx-auto space-y-8">
-        <div className="flex justify-between items-center">
-          <h1 className="text-4xl font-bold text-red-500">Mars Colonization</h1>
-          <div className="flex gap-4 items-center">
+      <main className="max-w-7xl mx-auto space-y-8 px-4">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-red-500">
+            Mars Colonization
+            {username && <span className="block text-sm font-normal text-white/80">Colonist: {username}</span>}
+          </h1>
+          <div className="flex gap-2 md:gap-4 items-center">
             <button
               onClick={() => setIsRunning(!isRunning)}
-              className="px-6 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white font-semibold"
+              className="px-4 md:px-6 py-2 text-sm md:text-base rounded-full bg-red-500 hover:bg-red-600 text-white font-semibold"
             >
               {isRunning ? 'Pause' : 'Start'}
             </button>
             <select 
               value={speed}
               onChange={(e) => setSpeed(Number(e.target.value))}
-              className="bg-black/30 text-white rounded-md px-3 py-2"
+              className="bg-black/30 text-white rounded-md px-2 md:px-3 py-1 md:py-2 text-sm md:text-base"
             >
-              <option value={1000}>Normal Speed</option>
+              <option value={1000}>
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Normal Speed
+                </span>
+              </option>
               <option value={500}>Fast</option>
               <option value={2000}>Slow</option>
             </select>
@@ -106,6 +128,8 @@ export default function Home() {
           </div>
         </div>
         {isGameOver && <GameOver />}
+
+        <StatisticsPanel />
       </main>
     </div>
   );
@@ -126,6 +150,32 @@ function ResourceDisplay({ icon, value, label }) {
           animate={{ width: `${value}%` }}
         />
       </div>
+    </div>
+  );
+}
+
+function StatisticsPanel() {
+  const { generation, habitatCount, resources } = useGameStore();
+  
+  return (
+    <div className="p-4 bg-black/30 rounded-xl backdrop-blur-sm">
+      <h3 className="text-lg font-semibold text-white mb-4">Statistics</h3>
+      <div className="space-y-2">
+        <StatItem label="Total Generations" value={generation} />
+        <StatItem label="Habitat Domes" value={habitatCount} />
+        <StatItem label="Total Structures" value={
+          Object.values(resources).reduce((a, b) => a + b, 0)
+        } />
+      </div>
+    </div>
+  );
+}
+
+function StatItem({ label, value }) {
+  return (
+    <div className="flex justify-between text-white/80">
+      <span>{label}</span>
+      <span className="font-medium">{value}</span>
     </div>
   );
 } 

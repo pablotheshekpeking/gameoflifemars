@@ -22,7 +22,7 @@ const HAZARDS = {
   METEOR: { chance: 0.05, damage: 70 }
 };
 
-export const useGameStore = create((set) => ({
+export const useGameStore = create((set, get) => ({
   grid: [],
   generation: 0,
   isRunning: false,
@@ -75,7 +75,9 @@ export const useGameStore = create((set) => ({
         ([resource, cost]) => state.resources[resource] >= cost
       );
 
-      if (!canAfford) return state;
+      if (!canAfford) {
+        return state;
+      }
 
       // Deduct resources
       const newResources = { ...state.resources };
@@ -200,6 +202,22 @@ export const useGameStore = create((set) => ({
   setSelectedStructure: (structure) => set({ selectedStructure: structure }),
   setIsRunning: (running) => set({ isRunning: running }),
   setSpeed: (speed) => set({ speed }),
+
+  saveGame: () => {
+    const state = get();
+    localStorage.setItem('marsColonySave', JSON.stringify({
+      grid: state.grid,
+      generation: state.generation,
+      resources: state.resources,
+      habitatCount: state.habitatCount
+    }));
+  },
+  loadGame: () => {
+    const saved = localStorage.getItem('marsColonySave');
+    if (saved) {
+      set(JSON.parse(saved));
+    }
+  },
 }));
 
 function countNeighbors(grid, row, col) {

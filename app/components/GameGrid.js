@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { useEffect, useRef } from 'react';
 
@@ -10,8 +10,26 @@ const structureIcons = {
   shield: '🛡️',
 };
 
+const HazardEffect = ({ type }) => {
+  const effects = {
+    DUST_STORM: 'bg-yellow-500/50',
+    RADIATION: 'bg-green-500/50',
+    METEOR: 'bg-red-500/50'
+  };
+
+  return (
+    <motion.div
+      className={`absolute inset-0 ${effects[type]}`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+    />
+  );
+};
+
 export default function GameGrid() {
-  const { grid, isRunning, speed, nextGeneration, placeStructure, selectedStructure } = useGameStore();
+  const { grid, isRunning, speed, nextGeneration, placeStructure, selectedStructure, weather } = useGameStore();
   const intervalRef = useRef();
 
   useEffect(() => {
@@ -55,6 +73,9 @@ export default function GameGrid() {
 
   return (
     <div className="relative w-full aspect-[2/1] bg-black/20 rounded-xl overflow-hidden backdrop-blur-sm">
+      <AnimatePresence>
+        {weather !== 'normal' && <HazardEffect type={weather.toUpperCase()} />}
+      </AnimatePresence>
       <div 
         className="grid h-full" 
         style={{ 
