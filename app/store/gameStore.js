@@ -17,9 +17,9 @@ const structures = [
 ];
 
 const HAZARDS = {
-  DUST_STORM: { chance: 0.01, damage: 20 },
-  RADIATION: { chance: 0.02, damage: 15 },
-  METEOR: { chance: 0.005, damage: 50 }
+  DUST_STORM: { chance: 0.15, damage: 30 },
+  RADIATION: { chance: 0.25, damage: 25 },
+  METEOR: { chance: 0.05, damage: 70 }
 };
 
 export const useGameStore = create((set) => ({
@@ -34,6 +34,8 @@ export const useGameStore = create((set) => ({
     energy: RESOURCE_MAX,
   },
   weather: 'normal',
+  isGameOver: false,
+  habitatCount: 0,
 
   initializeGrid: () => {
     const newGrid = Array(GRID_SIZE.rows).fill().map(() =>
@@ -45,6 +47,22 @@ export const useGameStore = create((set) => ({
       }))
     );
     set({ grid: newGrid });
+  },
+
+  resetGame: () => {
+    set({
+      grid: [],
+      generation: 0,
+      isRunning: false,
+      resources: {
+        oxygen: RESOURCE_MAX,
+        water: RESOURCE_MAX,
+        energy: RESOURCE_MAX,
+      },
+      weather: 'normal',
+      isGameOver: false,
+      habitatCount: 0,
+    });
   },
 
   placeStructure: (row, col, structureType) => {
@@ -153,11 +171,28 @@ export const useGameStore = create((set) => ({
         );
       });
 
-      return { 
+      // Count habitats after grid update
+      const habitatCount = newGrid.flat().filter(cell => cell.type === 'habitat').length;
+
+      // Check for game over condition
+      if (habitatCount === 0 && state.generation > 0) {
+        return {
+          grid: newGrid,
+          generation: state.generation + 1,
+          resources: globalResources,
+          weather: hazardType ? hazardType.toLowerCase() : 'normal',
+          isGameOver: true,
+          isRunning: false,
+          habitatCount
+        };
+      }
+
+      return {
         grid: newGrid,
         generation: state.generation + 1,
         resources: globalResources,
-        weather: hazardType ? hazardType.toLowerCase() : 'normal'
+        weather: hazardType ? hazardType.toLowerCase() : 'normal',
+        habitatCount
       };
     });
   },

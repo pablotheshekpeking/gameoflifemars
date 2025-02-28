@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useGameStore } from './store/gameStore';
 import GameGrid from './components/GameGrid';
+import GameOver from './components/GameOver';
 
 const structures = [
   { id: 'habitat', name: 'Habitat Dome', icon: '🏠', cost: { energy: 20, water: 10, oxygen: 15 } },
@@ -23,7 +24,8 @@ export default function Home() {
     selectedStructure,
     setSelectedStructure,
     speed,
-    setSpeed 
+    setSpeed,
+    isGameOver,
   } = useGameStore();
 
   useEffect(() => {
@@ -103,6 +105,7 @@ export default function Home() {
             <GameGrid />
           </div>
         </div>
+        {isGameOver && <GameOver />}
       </main>
     </div>
   );
