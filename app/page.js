@@ -57,6 +57,7 @@ export default function Home() {
       <InfoModal 
         isOpen={showInfoModal} 
         onClose={() => setShowInfoModal(false)} 
+        style={{ position: 'fixed', top: '10px', right: '10px' }}
       />
 
       <div className="max-w-7xl mx-auto space-y-8">

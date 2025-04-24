@@ -6,19 +6,19 @@ export default function InfoModal({ isOpen, onClose }) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div className="fixed inset-0 flex items-center justify-center z-50">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-lg max-h-[90vh] overflow-y-auto bg-black/80 backdrop-blur-md p-6 rounded-xl z-50 text-white shadow-xl border border-white/10"
+            className="relative w-[90%] max-w-lg max-h-[90vh] overflow-y-auto bg-black/80 backdrop-blur-md p-6 rounded-xl z-50 text-white shadow-xl border border-white/10"
           >
             <div className="relative">
               <button
@@ -82,7 +82,7 @@ export default function InfoModal({ isOpen, onClose }) {
               </button>
             </div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );
